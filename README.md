@@ -1,36 +1,31 @@
-# Скрипт для проверки прокси
+# Script for proxy checking
 
-[![Latest Stable Version](https://poser.pugx.org/evmason/py-proxy-checker/v/stable)](https://packagist.org/packages/evmason/py-proxy-checker)
-[![Total Downloads](https://poser.pugx.org/evmason/py-proxy-checker/downloads)](https://packagist.org/packages/evmason/py-proxy-checker)
-[![Latest Unstable Version](https://poser.pugx.org/evmason/py-proxy-checker/v/unstable)](https://packagist.org/packages/evmason/py-proxy-checker)
-[![License](https://poser.pugx.org/evmason/py-proxy-checker/license)](https://packagist.org/packages/evmason/py-proxy-checker)
+The script retrieves the proxy list from the txt file, and checks for the proxy's operability and anonymity.
 
-Скрипт получает список прокси из txt файл, и производит проверку на работоспособность и анонимность прокси.
+## Using
 
-## Использование
-
-### Пример файла proxy_list.txt:
+### proxy_list.txt file example:
 ```
-# можно указывать диапазон IP адресов
+# you can specify the range of IP addresses
 192.168.159.2:9011-192.168.159.4:9011
 
-# можно указывать конкретный IP адрес и порт
+# you can specify a specific IP address and port
 192.168.159.10:9011
 
-# можно указывать с или без http:// в начале строки
+# can be specified with or without http: // at the beginning of the line
 http://192.168.159.11:9011
 
 127.0.0.1:1111-127.0.0.3:1111
 ```
 
-### Выполнение:
-если не указывать имя файла в командной строке, скрипт спросит его сразу после запуска
+### Execution:
+if you do not specify a file name on the command line, the script will ask it right after starting
  
 ```
 ./check_proxy.py proxy_list.txt
 ```
 
-### Результат выполнения:
+### Execution result:
 ```
 http://192.168.159.2:9011 - OK
 http://192.168.159.3:9011 - OK
@@ -47,9 +42,9 @@ Warning proxies: 0
 Bad proxies: 3
 ```
 
-* `OK proxies` - кол. прокси которые прошли проверку и являются анонимными;
-* `Warning proxies` - кол. прокси которые передают в http заголовке настоящий IP адрес, и не являются анонимными;
-* `Bad proxies` - кол. рокси которые не отвечают.
+* `OK proxies` - the number of proxies that have been checked and are anonymous;
+* `Warning proxies` - the number of proxies that transmit the current IP address in the http header, and are not anonymous;
+* `Bad proxies` - number of proxies that do not work.
 
-## Системные требования
+## System requirements
 * python 3
