@@ -7,6 +7,13 @@ from urllib.parse import urlparse
 import re
 import os
 import sys
+import json
+
+# this URL will be used to check proxy.
+# for a given link, it is necessary to display information 
+# about the connected client in this format (json):
+# {"ip":"21.10.121.102"}
+PROXY_CHECK_URL = 'https://branchup.pro/whatsmyip.php'
 
 def check_proxy(scheme, ip, port):
 	try:
@@ -15,7 +22,7 @@ def check_proxy(scheme, ip, port):
 		proxy = req.ProxyHandler({'http': proxy_addr, 'https': proxy_addr})
 		opener = req.build_opener(proxy)
 		req.install_opener(opener)
-		conn = req.urlopen('https://branchup.pro/whatsmyip.php')
+		conn = req.urlopen(PROXY_CHECK_URL)
 		return conn.read()
 	except req_e.URLError as e:
 		return False
@@ -127,25 +134,26 @@ if __name__ == '__main__':
 
 				for scheme, ip, port in ips_list:
 					proxy_check_result = check_proxy(scheme, ip, port)
+					result_text = proxy_check_result.decode('utf8').strip()
 
-					proxy_check_result_txt = '%sNot works%s' % (bcolors.FAIL, bcolors.ENDC)
-					if proxy_check_result is not False:
-						search_result = re.search('(([0-9]{1,3}\.){3}[0-9]{1,3})', proxy_check_result.decode())
-						if search_result:
-							final_ip = search_result.group(1)
+					proxy_check_result_txt = ''
+					try:
+						json_data = json.loads(result_text)
 
-							if final_ip == ip:
+						if 'ip' in json_data:
+							if json_data['ip'] == ip:
 								proxy_check_result_txt = '%sOK%s' % (bcolors.OKGREEN, bcolors.ENDC)
 								counts['ok'] += 1
 							else:
 								proxy_check_result_txt = '%sFinal IP not equal source%s' % (bcolors.WARNING, bcolors.ENDC)
 								counts['warn'] += 1
-						else:
-							proxy_check_result_txt = '%sService cant detect final IP%s' % (bcolors.WARNING, bcolors.ENDC)
-							counts['warn'] += 1
-					else:
+					except json.decoder.JSONDecodeError:
+						proxy_check_result_txt = '%sService cant detect final IP%s' % (bcolors.WARNING, bcolors.ENDC)
+						counts['warn'] += 1
+					except Exception as e:
+						print(type(e))
+						proxy_check_result_txt = '%sNot works%s' % (bcolors.FAIL, bcolors.ENDC)
 						counts['error'] += 1
-
 
 					print('%s://%s:%s - %s' % (scheme, ip, port, proxy_check_result_txt))
 
